@@ -177,6 +177,14 @@ h1 {
   font-size: 13px;
   padding: 6px;
 }
+
+.save-hint {
+  font-size: 10px;
+  opacity: 0.35;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+  font-style: italic;
+}
 </style>
 </head>
 
@@ -282,19 +290,11 @@ function render() {
         <div class="review-toggle">отзыв ▼</div>
 
         <div class="review-box">
-  <textarea class="review">${state[key].review || ""}</textarea>
-  <div class="save-hint">сохраняется автоматически</div>
-</div>
+          <textarea class="review">${state[key].review || ""}</textarea>
+          <div class="save-hint">сохраняется автоматически</div>
+        </div>
       `;
 
-      .save-hint {
-  font-size: 10px;
-  opacity: 0.35;
-  margin-top: 4px;
-  letter-spacing: 0.5px;
-  font-style: italic;
-}
-      
       card.querySelector(".check").onclick = () => {
         state[key].done = !state[key].done;
         save(state);
