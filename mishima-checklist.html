@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Mishima Archive</title>
+
+<style>
+body {
+  background: #0b0b0b;
+  color: #f2f2f2;
+  font-family: Georgia, serif;
+  margin: 0;
+  padding: 30px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.hero img {
+  width: 120px;
+  filter: grayscale(100%);
+  opacity: 0.85;
+}
+
+h1 {
+  text-align: center;
+  letter-spacing: 5px;
+  margin: 10px 0;
+}
+
+.progress {
+  text-align: center;
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
+.stats {
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.6;
+  margin-bottom: 30px;
+}
+
+/* SECTION */
+.section {
+  max-width: 850px;
+  margin: 0 auto 40px;
+}
+
+.section-title {
+  font-size: 12px;
+  letter-spacing: 2px;
+  opacity: 0.5;
+  border-bottom: 1px solid #222;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+/* CARD */
+.card {
+  padding: 10px 0;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+/* TOP ROW */
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.check {
+  cursor: pointer;
+  font-size: 18px;
+  opacity: 0.5;
+}
+
+.card.done .check {
+  opacity: 1;
+}
+
+.title {
+  font-size: 15px;
+}
+
+.card.done .title {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+/* STARS */
+.stars {
+  display: flex;
+  gap: 3px;
+}
+
+.star {
+  cursor: pointer;
+  font-size: 15px;
+  opacity: 0.2;
+}
+
+.star.active {
+  opacity: 1;
+}
+
+/* TOGGLE */
+.review-toggle {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.review-toggle:hover {
+  opacity: 1;
+}
+
+/* REVIEW */
+.review-box {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.card.open .review-box {
+  max-height: 120px;
+}
+
+.review {
+  width: 100%;
+  margin-top: 6px;
+  background: transparent;
+  border: 1px solid #222;
+  color: #f2f2f2;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  padding: 6px;
+  resize: none;
+}
+
+/* MINI ARCHIVE FEEL */
+.card {
+  transition: 0.2s;
+}
+
+.card:hover {
+  padding-left: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="hero">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Yukio_Mishima_1955.jpg">
+</div>
+
+<h1>MISHIMA ARCHIVE</h1>
+
+<div class="progress" id="progress"></div>
+<div class="stats" id="stats"></div>
+
+<div id="app"></div>
+
+<script>
+
+const data = {
+"Романы и повести": [
+"Цветущий лес",
+"Исповедь маски",
+"Жажда любви",
+"Запретные цвета",
+"Шум прибоя",
+"Золотой храм",
+"После банкета",
+"Моряк, которого разлюбило море"
+],
+
+"Море изобилия": [
+"Весенний снег",
+"Несущие кони",
+"Храм на рассвете",
+"Падение ангела"
+],
+
+"Пьесы": [
+"Сотоба Комати",
+"Принцесса Лунного Лавра",
+"Её Высочество Аои",
+"Маркиза де Сад",
+"Мой друг Гитлер"
+],
+
+"Эссе": [
+"Солнце и сталь",
+"В защиту культуры",
+"Учение Ван Янмина",
+"Японская душа"
+],
+
+"Рассказы": [
+"Патриотизм",
+"Смерть в середине лета",
+"Газета",
+"Любовь святого старца",
+"Море и закат"
+]
+};
+
+function load() {
+  return JSON.parse(localStorage.getItem("mishima_final")) || {};
+}
+
+function save(state) {
+  localStorage.setItem("mishima_final", JSON.stringify(state));
+}
+
+function render() {
+  const state = load();
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+
+  let total = 0;
+  let done = 0;
+  let ratings = [];
+
+  Object.keys(data).forEach(section => {
+
+    const sectionEl = document.createElement("div");
+    sectionEl.className = "section";
+
+    sectionEl.innerHTML = `<div class="section-title">${section}</div>`;
+
+    data[section].forEach((book, index) => {
+
+      const key = section + "_" + index;
+
+      if (!state[key]) {
+        state[key] = { done: false, rating: 0, review: "" };
+      }
+
+      total++;
+      if (state[key].done) done++;
+      if (state[key].rating) ratings.push(state[key].rating);
+
+      const card = document.createElement("div");
+      card.className = "card";
+      if (state[key].done) card.classList.add("done");
+
+      const stars = Array.from({length: 5}, (_, i) => `
+        <span class="star ${i < state[key].rating ? "active" : ""}" data-i="${i}">★</span>
+      `).join("");
+
+      card.innerHTML = `
+        <div class="top">
+          <div class="left">
+            <div class="check">${state[key].done ? "✔" : "○"}</div>
+            <div class="title">${book}</div>
+          </div>
+          <div class="stars">${stars}</div>
+        </div>
+
+        <div class="review-toggle">отзыв ▼</div>
+
+        <div class="review-box">
+          <textarea class="review" placeholder="короткий отзыв...">${state[key].review || ""}</textarea>
+        </div>
+      `;
+
+      // DONE
+      card.querySelector(".check").onclick = () => {
+        state[key].done = !state[key].done;
+        save(state);
+        render();
+      };
+
+      // STARS
+      card.querySelectorAll(".star").forEach(star => {
+        star.onclick = (e) => {
+          state[key].rating = Number(e.target.dataset.i) + 1;
+          save(state);
+          render();
+        };
+      });
+
+      // REVIEW
+      const review = card.querySelector(".review");
+      review.oninput = () => {
+        state[key].review = review.value;
+        save(state);
+      };
+
+      // TOGGLE REVIEW
+      card.querySelector(".review-toggle").onclick = () => {
+        card.classList.toggle("open");
+      };
+
+      sectionEl.appendChild(card);
+    });
+
+    app.appendChild(sectionEl);
+  });
+
+  // PROGRESS
+  document.getElementById("progress").innerText =
+    `Прочитано: ${done} / ${total}`;
+
+  // STATS
+  const avg = ratings.length
+    ? (ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(2)
+    : 0;
+
+  const maxBook = Object.entries(state)
+    .sort((a,b)=>b[1].rating - a[1].rating)[0];
+
+  document.getElementById("stats").innerText =
+    `Средняя оценка: ${avg} ★`;
+
+  save(state);
+}
+
+render();
+
+</script>
+
+</body>
+</html>
