@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Yukio Mishima</title>
+<title>Юкио Мисима</title>
 
 <style>
 body {
@@ -36,22 +36,25 @@ body {
 .subtitle {
   text-align: center;
   font-size: 11px;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   opacity: 0.5;
   margin-top: 10px;
 }
 
 h1 {
   text-align: center;
-  letter-spacing: 4px;
-  margin: 10px 0 20px;
+  letter-spacing: 3px;
+  margin: 10px 0 10px;
 }
 
-.progress, .stats {
-  text-align: center;
-  opacity: 0.7;
-  font-size: 13px;
-  margin-bottom: 10px;
+.legend {
+  max-width: 700px;
+  margin: 0 auto 20px;
+  font-size: 12px;
+  opacity: 0.6;
+  line-height: 1.5;
+  border: 1px solid #222;
+  padding: 10px;
 }
 
 .section {
@@ -122,16 +125,29 @@ h1 {
   opacity: 1;
 }
 
+.love-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
 .love-star {
-  margin-top: 5px;
   font-size: 16px;
   opacity: 0.2;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 .love-star.active {
   opacity: 1;
-  filter: drop-shadow(0 0 4px #ff2b2b);
+  filter: drop-shadow(0 0 6px #ff2b2b);
+}
+
+.love-label {
+  font-size: 11px;
+  opacity: 0.35;
+  font-style: italic;
 }
 
 .review-toggle {
@@ -170,63 +186,62 @@ h1 {
   <div class="portrait-frame">
     <img src="mishima.jpg">
   </div>
-  <div class="subtitle">Selected Works</div>
+  <div class="subtitle">избранные произведения</div>
 </div>
 
-<h1>Yukio Mishima</h1>
+<h1>Юкио Мисима</h1>
 
-<div class="progress" id="progress"></div>
-<div class="stats" id="stats"></div>
+<div class="legend">
+<b>Легенда:</b><br>
+⭐ — оценка книги (1–5)<br>
+❤️‍🔥 — очень зацепило (сильное эмоциональное впечатление)<br>
+✔ — прочитано<br>
+</div>
 
 <div id="app"></div>
 
 <script>
 
 const data = {
-"Novels": [
-"Confessions of a Mask",
-"The Temple of the Golden Pavilion",
-"Thirst for Love",
-"The Sailor Who Fell from Grace with the Sea",
-"After the Banquet"
+"Романы": [
+"Исповедь маски",
+"Золотой храм",
+"Жажда любви",
+"Моряк, которого разлюбило море",
+"После банкета"
 ],
 
-"The Sea of Fertility": [
-"Spring Snow",
-"Runaway Horses",
-"The Temple of Dawn",
-"The Decay of the Angel"
+"Тетралогия «Море изобилия»": [
+"Весенний снег",
+"Несущие кони",
+"Храм на рассвете",
+"Падение ангела"
 ],
 
-"Plays": [
-"Madame de Sade",
-"The Lady Aoi",
-"The Damask Drum"
+"Пьесы": [
+"Госпожа де Сад",
+"Тётя Аои",
+"Дамасский барабан"
 ],
 
-"Essays": [
-"Sun and Steel",
-"In Defense of Culture"
+"Эссе": [
+"Солнце и сталь",
+"В защиту культуры"
 ]
 };
 
 function load() {
-  return JSON.parse(localStorage.getItem("mishima_final_v2")) || {};
+  return JSON.parse(localStorage.getItem("mishima_ru_v1")) || {};
 }
 
 function save(state) {
-  localStorage.setItem("mishima_final_v2", JSON.stringify(state));
+  localStorage.setItem("mishima_ru_v1", JSON.stringify(state));
 }
 
 function render() {
   const state = load();
   const app = document.getElementById("app");
   app.innerHTML = "";
-
-  let total = 0;
-  let done = 0;
-  let ratings = [];
-  let loveCount = 0;
 
   Object.keys(data).forEach(section => {
 
@@ -241,11 +256,6 @@ function render() {
       if (!state[key]) {
         state[key] = { done: false, rating: 0, review: "", love: false };
       }
-
-      total++;
-      if (state[key].done) done++;
-      if (state[key].rating) ratings.push(state[key].rating);
-      if (state[key].love) loveCount++;
 
       const card = document.createElement("div");
       card.className = "card";
@@ -264,9 +274,12 @@ function render() {
           <div class="stars">${stars}</div>
         </div>
 
-        <div class="love-star ${state[key].love ? "active" : ""}">❤️‍🔥</div>
+        <div class="love-wrap">
+          <div class="love-star ${state[key].love ? "active" : ""}">❤️‍🔥</div>
+          <div class="love-label">очень зацепило</div>
+        </div>
 
-        <div class="review-toggle">review ▼</div>
+        <div class="review-toggle">отзыв ▼</div>
 
         <div class="review-box">
           <textarea class="review">${state[key].review || ""}</textarea>
@@ -307,16 +320,6 @@ function render() {
 
     app.appendChild(sectionEl);
   });
-
-  const avg = ratings.length
-    ? (ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(2)
-    : 0;
-
-  document.getElementById("progress").innerText =
-    `Read: ${done} / ${total}`;
-
-  document.getElementById("stats").innerText =
-    `Avg rating: ${avg} ★ | Emotional hits: ${loveCount}`;
 
   save(state);
 }
