@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Mishima Archive</title>
+<title>Yukio Mishima</title>
 
 <style>
 body {
@@ -18,32 +18,42 @@ body {
   margin-bottom: 10px;
 }
 
-.hero img {
-  width: 120px;
+.portrait-frame {
+  width: 140px;
+  height: 180px;
+  margin: 0 auto;
+  border: 1px solid #333;
+  padding: 6px;
+}
+
+.portrait-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   filter: grayscale(100%);
-  opacity: 0.85;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 3px;
+  opacity: 0.5;
+  margin-top: 10px;
 }
 
 h1 {
   text-align: center;
-  letter-spacing: 5px;
-  margin: 10px 0;
+  letter-spacing: 4px;
+  margin: 10px 0 20px;
 }
 
-.progress {
+.progress, .stats {
   text-align: center;
-  margin-bottom: 10px;
   opacity: 0.7;
-}
-
-.stats {
-  text-align: center;
   font-size: 13px;
-  opacity: 0.6;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
 }
 
-/* SECTION */
 .section {
   max-width: 850px;
   margin: 0 auto 40px;
@@ -51,20 +61,22 @@ h1 {
 
 .section-title {
   font-size: 12px;
-  letter-spacing: 2px;
   opacity: 0.5;
   border-bottom: 1px solid #222;
   padding-bottom: 5px;
   margin-bottom: 10px;
 }
 
-/* CARD */
 .card {
   padding: 10px 0;
   border-bottom: 1px solid #1f1f1f;
+  transition: 0.2s;
 }
 
-/* TOP ROW */
+.card:hover {
+  transform: translateX(4px);
+}
+
 .top {
   display: flex;
   justify-content: space-between;
@@ -96,7 +108,6 @@ h1 {
   text-decoration: line-through;
 }
 
-/* STARS */
 .stars {
   display: flex;
   gap: 3px;
@@ -104,7 +115,6 @@ h1 {
 
 .star {
   cursor: pointer;
-  font-size: 15px;
   opacity: 0.2;
 }
 
@@ -112,23 +122,29 @@ h1 {
   opacity: 1;
 }
 
-/* TOGGLE */
-.review-toggle {
-  margin-top: 6px;
-  font-size: 12px;
-  opacity: 0.6;
+.love-star {
+  margin-top: 5px;
+  font-size: 16px;
+  opacity: 0.2;
   cursor: pointer;
 }
 
-.review-toggle:hover {
+.love-star.active {
   opacity: 1;
+  filter: drop-shadow(0 0 4px #ff2b2b);
 }
 
-/* REVIEW */
+.review-toggle {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.5;
+  cursor: pointer;
+}
+
 .review-box {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  transition: 0.3s;
 }
 
 .card.open .review-box {
@@ -141,19 +157,9 @@ h1 {
   background: transparent;
   border: 1px solid #222;
   color: #f2f2f2;
-  font-family: Georgia, serif;
+  font-family: Georgia;
   font-size: 13px;
   padding: 6px;
-  resize: none;
-}
-
-/* MINI ARCHIVE FEEL */
-.card {
-  transition: 0.2s;
-}
-
-.card:hover {
-  padding-left: 5px;
 }
 </style>
 </head>
@@ -161,10 +167,13 @@ h1 {
 <body>
 
 <div class="hero">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Yukio_Mishima_1955.jpg">
+  <div class="portrait-frame">
+    <img src="mishima.jpg">
+  </div>
+  <div class="subtitle">Selected Works</div>
 </div>
 
-<h1>MISHIMA ARCHIVE</h1>
+<h1>Yukio Mishima</h1>
 
 <div class="progress" id="progress"></div>
 <div class="stats" id="stats"></div>
@@ -174,54 +183,39 @@ h1 {
 <script>
 
 const data = {
-"Романы и повести": [
-"Цветущий лес",
-"Исповедь маски",
-"Жажда любви",
-"Запретные цвета",
-"Шум прибоя",
-"Золотой храм",
-"После банкета",
-"Моряк, которого разлюбило море"
+"Novels": [
+"Confessions of a Mask",
+"The Temple of the Golden Pavilion",
+"Thirst for Love",
+"The Sailor Who Fell from Grace with the Sea",
+"After the Banquet"
 ],
 
-"Море изобилия": [
-"Весенний снег",
-"Несущие кони",
-"Храм на рассвете",
-"Падение ангела"
+"The Sea of Fertility": [
+"Spring Snow",
+"Runaway Horses",
+"The Temple of Dawn",
+"The Decay of the Angel"
 ],
 
-"Пьесы": [
-"Сотоба Комати",
-"Принцесса Лунного Лавра",
-"Её Высочество Аои",
-"Маркиза де Сад",
-"Мой друг Гитлер"
+"Plays": [
+"Madame de Sade",
+"The Lady Aoi",
+"The Damask Drum"
 ],
 
-"Эссе": [
-"Солнце и сталь",
-"В защиту культуры",
-"Учение Ван Янмина",
-"Японская душа"
-],
-
-"Рассказы": [
-"Патриотизм",
-"Смерть в середине лета",
-"Газета",
-"Любовь святого старца",
-"Море и закат"
+"Essays": [
+"Sun and Steel",
+"In Defense of Culture"
 ]
 };
 
 function load() {
-  return JSON.parse(localStorage.getItem("mishima_final")) || {};
+  return JSON.parse(localStorage.getItem("mishima_final_v2")) || {};
 }
 
 function save(state) {
-  localStorage.setItem("mishima_final", JSON.stringify(state));
+  localStorage.setItem("mishima_final_v2", JSON.stringify(state));
 }
 
 function render() {
@@ -232,33 +226,34 @@ function render() {
   let total = 0;
   let done = 0;
   let ratings = [];
+  let loveCount = 0;
 
   Object.keys(data).forEach(section => {
 
     const sectionEl = document.createElement("div");
     sectionEl.className = "section";
-
     sectionEl.innerHTML = `<div class="section-title">${section}</div>`;
 
-    data[section].forEach((book, index) => {
+    data[section].forEach((book, i) => {
 
-      const key = section + "_" + index;
+      const key = section + "_" + i;
 
       if (!state[key]) {
-        state[key] = { done: false, rating: 0, review: "" };
+        state[key] = { done: false, rating: 0, review: "", love: false };
       }
 
       total++;
       if (state[key].done) done++;
       if (state[key].rating) ratings.push(state[key].rating);
+      if (state[key].love) loveCount++;
 
       const card = document.createElement("div");
       card.className = "card";
       if (state[key].done) card.classList.add("done");
 
-      const stars = Array.from({length: 5}, (_, i) => `
-        <span class="star ${i < state[key].rating ? "active" : ""}" data-i="${i}">★</span>
-      `).join("");
+      const stars = Array.from({length: 5}, (_, j) =>
+        `<span class="star ${j < state[key].rating ? "active" : ""}" data-i="${j}">★</span>`
+      ).join("");
 
       card.innerHTML = `
         <div class="top">
@@ -269,39 +264,42 @@ function render() {
           <div class="stars">${stars}</div>
         </div>
 
-        <div class="review-toggle">отзыв ▼</div>
+        <div class="love-star ${state[key].love ? "active" : ""}">❤️‍🔥</div>
+
+        <div class="review-toggle">review ▼</div>
 
         <div class="review-box">
-          <textarea class="review" placeholder="короткий отзыв...">${state[key].review || ""}</textarea>
+          <textarea class="review">${state[key].review || ""}</textarea>
         </div>
       `;
 
-      // DONE
       card.querySelector(".check").onclick = () => {
         state[key].done = !state[key].done;
         save(state);
         render();
       };
 
-      // STARS
       card.querySelectorAll(".star").forEach(star => {
-        star.onclick = (e) => {
+        star.onclick = e => {
           state[key].rating = Number(e.target.dataset.i) + 1;
           save(state);
           render();
         };
       });
 
-      // REVIEW
-      const review = card.querySelector(".review");
-      review.oninput = () => {
-        state[key].review = review.value;
+      card.querySelector(".love-star").onclick = () => {
+        state[key].love = !state[key].love;
         save(state);
+        render();
       };
 
-      // TOGGLE REVIEW
       card.querySelector(".review-toggle").onclick = () => {
         card.classList.toggle("open");
+      };
+
+      card.querySelector(".review").oninput = (e) => {
+        state[key].review = e.target.value;
+        save(state);
       };
 
       sectionEl.appendChild(card);
@@ -310,20 +308,15 @@ function render() {
     app.appendChild(sectionEl);
   });
 
-  // PROGRESS
-  document.getElementById("progress").innerText =
-    `Прочитано: ${done} / ${total}`;
-
-  // STATS
   const avg = ratings.length
     ? (ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(2)
     : 0;
 
-  const maxBook = Object.entries(state)
-    .sort((a,b)=>b[1].rating - a[1].rating)[0];
+  document.getElementById("progress").innerText =
+    `Read: ${done} / ${total}`;
 
   document.getElementById("stats").innerText =
-    `Средняя оценка: ${avg} ★`;
+    `Avg rating: ${avg} ★ | Emotional hits: ${loveCount}`;
 
   save(state);
 }
